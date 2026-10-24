@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#100608">
+  <meta name="description" content="666 topluluğu: kod paylaş, sohbet et, birlikte öğren.">
+  <meta name="application-name" content="666">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <meta property="og:title" content="666 // Topluluk">
+  <meta property="og:image" content="./666-site-image.jpg">
+  <title>666 // Topluluk</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090507;
+      --panel: #14090c;
+      --panel2: #1d0d11;
+      --text: #f0f3f6;
+      --muted: #b09da1;
+      --accent: #ff3347;
+      --accent-dark: #a9152a;
+      --line: rgba(255,51,71,.32);
+      --red: #ff6573;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--text); background: var(--bg); font: 14px/1.55 var(--sans); }
+    button, input, textarea, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; text-decoration: none; }
+    button { color: inherit; }
+    .topline { height: 30px; padding: 0 4vw; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ff33471a; color: var(--muted); font: 10px var(--mono); letter-spacing: .11em; text-transform: uppercase; }
+    .online { color: var(--accent); }
+    .online::before { content: ""; display: inline-block; width: 6px; height: 6px; margin: 0 8px 1px 0; border-radius: 50%; background: var(--accent); box-shadow: 0 0 9px var(--accent); }
+    header { position: sticky; top: 0; z-index: 3; border-bottom: 1px solid #ff334722; background: #100608ed; backdrop-filter: blur(14px); }
+    .nav { max-width: 1500px; min-height: 66px; margin: auto; padding: 0 4vw; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; letter-spacing: .14em; }
+    .brand-icon { width: 38px; height: 38px; flex: 0 0 auto; overflow: hidden; border: 1px solid var(--accent); background: #080405; }
+    .brand-icon img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .brand small { display: block; color: var(--muted); font: 8px var(--mono); letter-spacing: .12em; }
+    .nav-right { display: flex; align-items: center; gap: 16px; color: var(--muted); font: 11px var(--mono); }
+    .nav-right strong { color: var(--accent); font-weight: 500; }
+    .nav-action { padding: 8px 11px; border: 1px solid var(--line); background: #ff33470e; color: var(--accent); cursor: pointer; font: 10px var(--mono); }
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .page { max-width: 1500px; min-height: calc(100vh - 125px); margin: 0 auto; padding: 24px 4vw 40px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+    .chat-top-column { grid-column: 1 / -1; min-width: 0; }
+    .column { display: grid; gap: 15px; min-width: 0; }
+    .panel { overflow: hidden; border: 1px solid #ffffff12; background: var(--panel); }
+    .panel-head { min-height: 49px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 1px solid #ffffff0d; }
+    .panel-title { font-size: 12px; font-weight: 750; letter-spacing: .02em; }
+    .panel-title::before { content: "//"; margin-right: 7px; color: var(--accent); font: 11px var(--mono); }
+    .micro { color: var(--muted); font: 9px var(--mono); }
+    .chat-panel { position: sticky; top: 85px; }
+    .chat-screen { position: fixed; inset: 0; z-index: 7; display: grid; place-items: center; padding: 24px; background: #05080bf2; backdrop-filter: blur(12px); }
+    .chat-screen-inner { width: min(900px, 100%); height: min(850px, 100%); }
+    .chat-screen .chat-panel { display: flex; height: 100%; flex-direction: column; position: static; }
+    .chat-screen .chat-messages { height: auto; min-height: 0; flex: 1; }
+    .chat-screen .chat-form textarea { min-height: 80px; }
+    .chat-switch { display: flex; gap: 6px; padding: 10px 12px 0; }
+    .switch { flex: 1; padding: 7px 5px; border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font: 10px var(--mono); }
+    .switch.active { border-color: var(--line); background: #ff33470e; color: var(--accent); }
+    .chat-title { padding: 10px 14px 4px; color: var(--accent); font: 10px var(--mono); }
+    .chat-messages { height: 345px; overflow: auto; padding: 10px 13px; display: flex; flex-direction: column; gap: 12px; }
+    .chat-empty, .empty { padding: 23px 14px; color: var(--muted); font-size: 12px; text-align: center; }
+    .message { overflow-wrap: anywhere; }
+    .message-meta { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 3px; color: var(--muted); font: 9px var(--mono); }
+    .message-meta strong { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 600; }
+    .message-body { color: #d7e0d9; font-size: 12px; white-space: pre-wrap; }
+    .chat-form { padding: 11px; border-top: 1px solid #ffffff0d; }
+    .chat-form textarea, .field, .select, .post-body {
+      width: 100%; border: 1px solid #ffffff16; border-radius: 0; outline: 0; background: #090e0c; color: var(--text);
+    }
+    textarea:focus, input:focus, select:focus { border-color: var(--accent-dark); }
+    .chat-form textarea { min-height: 58px; padding: 9px; resize: vertical; font-size: 11px; }
+    .chat-attachments { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
+    .chat-attachments input { min-width: 0; flex: 1; color: var(--muted); font-size: 10px; }
+    .message-media { max-width: min(100%, 420px); max-height: 360px; margin-top: 7px; border: 1px solid #ffffff16; object-fit: contain; background: #080a0d; }
+    .chat-submit { width: 100%; margin-top: 7px; }
+    .chat-hint { padding: 0 13px 12px; color: var(--muted); font-size: 10px; }
+    .feed-head { min-height: 220px; padding: 22px 18px 16px; display: flex; flex-direction: column; justify-content: end; border-bottom: 1px solid #ffffff0d; background: linear-gradient(0deg, #090507f2 0%, #090507a6 45%, #09050726 100%), url("./666-site-image.jpg") center 45% / cover; }
+    .feed-kicker { color: var(--accent); font: 10px var(--mono); letter-spacing: .12em; }
+    .feed-head h1 { margin: 5px 0 3px; font-size: 25px; letter-spacing: -.045em; }
+    .feed-head p { margin: 0; color: var(--muted); font-size: 11px; }
+    .categories { display: flex; gap: 7px; overflow-x: auto; padding: 11px 13px; border-bottom: 1px solid #ffffff0d; }
+    .category { flex: 0 0 auto; padding: 7px 10px; border: 1px solid #ffffff14; background: transparent; color: #aeb9b0; cursor: pointer; font: 10px var(--mono); }
+    .category.active, .category:hover { border-color: var(--line); color: var(--accent); background: #ff334710; }
+    .post-list { display: grid; }
+    .post { padding: 17px 18px; border-bottom: 1px solid #ffffff0d; }
+    .post:last-child { border-bottom: 0; }
+    .post-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--muted); font: 10px var(--mono); }
+    .post-user { display: inline-flex; align-items: center; gap: 7px; color: var(--accent); font-weight: 650; }
+    .tag { padding: 2px 6px; border: 1px solid var(--line); color: var(--accent); font-size: 9px; }
+    .tag.report { border-color: #ff797944; color: var(--red); }
+    .post h2 { margin: 10px 0 7px; font-size: 17px; line-height: 1.35; }
+    .post-content { overflow-wrap: anywhere; color: #c1cbc3; font-size: 12px; white-space: pre-wrap; }
+    .post-content.code { padding: 12px; border: 1px solid #ffffff10; background: #0d0709; color: #ffb2ba; font: 11px/1.6 var(--mono); }
+    .post-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 13px; }
+    .small-btn { padding: 5px 9px; border: 1px solid #ffffff16; background: transparent; color: #aeb9b0; cursor: pointer; font: 10px var(--mono); }
+    .small-btn:hover, .small-btn.liked { border-color: var(--line); color: var(--accent); }
+    .small-btn.danger { margin-left: auto; color: var(--red); }
+    .comments { margin-top: 12px; padding-top: 10px; border-top: 1px solid #ffffff0d; }
+    .comment { margin: 6px 0; color: #b8c2ba; font-size: 11px; overflow-wrap: anywhere; }
+    .comment strong { margin-right: 5px; color: var(--accent); }
+    .comment-form { display: flex; gap: 6px; margin-top: 9px; }
+    .comment-form input { flex: 1; min-width: 0; padding: 7px 9px; border: 1px solid #ffffff16; background: #090e0c; color: var(--text); font-size: 11px; }
+    .form-panel { padding: 14px; }
+    .form-panel h2 { margin: 0 0 4px; font-size: 14px; }
+    .form-panel > p { margin: 0 0 13px; color: var(--muted); font-size: 10px; }
+    .form { display: grid; gap: 8px; }
+    .field, .select { min-height: 36px; padding: 8px 9px; font-size: 11px; }
+    .post-body { min-height: 96px; padding: 9px; resize: vertical; font-size: 11px; }
+    .field-label { display: grid; gap: 4px; color: #aab6ad; font: 9px var(--mono); }
+    .button { min-height: 36px; padding: 8px 12px; border: 1px solid var(--accent); background: var(--accent); color: #160508; cursor: pointer; font: 700 10px var(--mono); }
+    .button:hover { background: #ff7180; }
+    .button.ghost { background: transparent; color: var(--accent); }
+    .button.full { width: 100%; }
+    .button:disabled { opacity: .5; cursor: not-allowed; }
+    .auth-form { display: grid; gap: 8px; }
+    .auth-toggle { padding: 0; border: 0; background: none; color: var(--accent); cursor: pointer; text-align: left; font-size: 10px; }
+    .auth-note { margin-top: 11px !important; padding-top: 9px; border-top: 1px solid #ffffff0d; font-size: 9px !important; line-height: 1.55; }
+    .user-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .user-card strong { color: var(--accent); font-size: 12px; }
+    .profile-heading { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .avatar { width: 36px; height: 36px; flex: 0 0 auto; border-radius: 50%; object-fit: cover; border: 1px solid var(--line); }
+    .avatar.small { width: 26px; height: 26px; }
+    .avatar-fallback { display: inline-grid; place-items: center; background: #2a0d13; color: var(--accent); font: 700 12px var(--mono); }
+    .profile-form { display: grid; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #ffffff0d; }
+    .profile-form textarea { min-height: 68px; resize: vertical; }
+    .profile-rank { display: inline-block; margin-top: 3px; padding: 2px 6px; border: 1px solid var(--line); color: var(--accent); font: 9px var(--mono); }
+    .rank-stars { display: inline-flex; gap: 2px; color: #ffd76a; font-size: 12px; letter-spacing: 1px; text-shadow: 0 0 8px #ffcc4d88; vertical-align: middle; }
+    .profile-link { padding: 0; border: 0; background: transparent; color: inherit; cursor: pointer; text-align: left; }
+    .profile-cover { position: relative; display: grid; min-height: 120px; place-items: center; overflow: hidden; margin: -16px -16px 14px; background: linear-gradient(135deg, #1b080d, #2b0b12 50%, #0b0507); }
+    .profile-cover img, .profile-cover video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .profile-cover::after { position: absolute; inset: 0; background: linear-gradient(0deg, #080a0dd9, #080a0d12); content: ""; }
+    .profile-cover-label { position: relative; z-index: 1; color: #ffe3e6; font: 10px var(--mono); letter-spacing: .12em; text-shadow: 0 2px 8px #000; }
+    .profile-cover-editor { display: grid; gap: 7px; margin-top: 8px; }
+    .rank-form { display: flex; gap: 5px; margin: 0 10px 10px; }
+    .rank-form .select { min-height: 29px; padding: 4px 6px; }
+    .rank-form .small-btn { flex: 0 0 auto; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 8; display: grid; place-items: center; overflow-y: auto; padding: 20px; background: #000b; }
+    .modal { width: min(460px, 100%); max-height: min(90vh, 760px); overflow: auto; border: 1px solid var(--line); background: var(--panel); box-shadow: 0 20px 70px #000a; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #ffffff12; }
+    .modal-body { padding: 16px; }
+    .profile-public-head { display: flex; align-items: center; gap: 12px; }
+    .profile-public-head .avatar { width: 58px; height: 58px; }
+    .profile-public-bio { margin: 15px 0; color: #c1cbc3; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .profile-posts { border-top: 1px solid #ffffff0d; }
+    .profile-posts .post { padding: 12px 0; }
+    .user-list { display: grid; }
+    .user-row { display: flex; align-items: center; justify-content: space-between; gap: 7px; padding: 10px 12px; border-bottom: 1px solid #ffffff0a; }
+    .user-row:last-child { border: 0; }
+    .user-name { display: grid; min-width: 0; overflow: hidden; color: #d6dfd8; font-size: 11px; text-overflow: ellipsis; }
+    .user-name .micro { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-actions { display: flex; gap: 5px; }
+    .user-actions .small-btn { padding: 5px 6px; font-size: 9px; }
+    .notice { margin: 0 0 16px; padding: 10px 13px; border: 1px solid #ff334730; background: #ff334708; color: #eadde0; font-size: 10px; }
+    .notice strong { color: var(--accent); }
+    .notice.warning { border-color: #ff797933; background: #ff797908; }
+    .notice.warning strong { color: var(--red); }
+    .toast { position: fixed; right: 20px; bottom: 20px; z-index: 9; max-width: min(420px, calc(100vw - 40px)); padding: 12px 16px; border: 1px solid var(--line); background: #111a14; color: var(--text); box-shadow: 0 10px 40px #0008; font-size: 12px; }
+    footer { padding: 16px 4vw; border-top: 1px solid #ffffff0d; color: var(--muted); font: 9px var(--mono); text-align: center; }
+    .hidden { display: none !important; }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      .right-column { grid-column: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .right-column .users-panel { grid-column: 1 / -1; }
+      .chat-top-column { grid-column: 1 / -1; }
+    }
+    @media (max-width: 720px) {
+      .topline { padding: 0 16px; }
+      .topline span:last-child { display: none; }
+      .nav { min-height: 59px; padding: 0 16px; }
+      .nav-right span:first-child { display: none; }
+      .nav-actions { gap: 5px; }
+      .nav-action { padding: 7px 8px; font-size: 9px; }
+      .page { padding: 15px 12px 28px; }
+      .layout { grid-template-columns: 1fr; gap: 13px; }
+      .column { display: contents; }
+      .feed-column { order: 1; display: grid; gap: 13px; }
+      .right-column { order: 2; display: grid; grid-template-columns: 1fr; grid-column: auto; gap: 13px; }
+      .right-column .users-panel { grid-column: auto; }
+      .chat-top-column { order: 0; }
+      .chat-panel { position: static; grid-row: auto; }
+      .chat-messages { height: 250px; }
+      .chat-screen { padding: 0; }
+      .chat-screen-inner { width: 100%; height: 100%; }
+      .chat-screen .chat-panel { border: 0; }
+      .feed-head h1 { font-size: 22px; }
+      footer { padding-bottom: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topline"><span class="online">666 · Topluluk alanı açık</span><span>Bilgi paylaş · sorumlu kal</span></div>
+  <header>
+    <div class="nav">
+      <a class="brand" href="#" aria-label="666 ana sayfa"><span class="brand-icon"><img src="./666-site-image.jpg" alt=""></span><span>666<small>TOPLULUK</small></span></a>
+      <div class="nav-right"><span>666 // TOPLULUK</span><div class="nav-actions"><button class="nav-action" id="nav-chat" type="button">SOHBETE YAZ</button><button class="nav-action" id="nav-auth" type="button">GİRİŞ YAP / KAYDOL</button></div></div>
+    </div>
+  </header>
+  <main class="page">
+    <div class="notice" id="connection-notice"><strong>Supabase kurulumu gerekiyor:</strong> Siteyi gerçek topluluk moduna almak için Supabase hesabındaki proje bilgilerini <code>supabase-config.js</code> dosyasına ekle ve <code>supabase-schema.sql</code> dosyasını SQL Editor'de çalıştır. Bu dosyalar tamamlanınca hesaplar ve içerikler kullanıcılar arasında ortak olur.</div>
+    <div class="notice warning"><strong>Güvenli paylaşım:</strong> “Güvenlik bildirimi” alanına gerçek kişilerin kimlik, adres, parola veya başka özel bilgilerini ekleme. Sadece izinli ve kişisel verilerden arındırılmış içerik paylaş.</div>
+    <div id="app" class="layout" aria-live="polite"></div>
+  </main>
+  <footer>666 // TOPLULUK · Paylaşımlar ve mesajlar hesabına bağlı bulut veritabanında saklanır.</footer>
+  <div id="toast-root"></div>
+
+  <script src="./supabase-config.js?v=666-3"></script>
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const config = window.SIX666_SUPABASE_CONFIG || {};
+    const app = document.getElementById("app");
+    const categories = [
+      { key: "all", label: "Tüm başlıklar" },
+      { key: "code", label: "Kod paylaşımı" },
+      { key: "report", label: "Güvenlik bildirimi" },
+      { key: "general", label: "Genel" }
+    ];
+    const ranks = ["Üye", "Çaylak", "Aktif", "Uzman", "Moderatör", "Kıdemli"];
+    let state = { users: [], posts: [], messages: [], follows: [] };
+    let currentUser = null;
+    let authUser = null;
+    let activeCategory = null;
+    let chatMode = "global";
+    let activeDm = null;
+    let authMode = "login";
+    let authOpen = false;
+    let viewingProfileId = null;
+    let chatScreenOpen = false;
+    const submittingForms = new WeakSet();
+    let toastTimer;
+    let refreshTimer;
+    let refreshQueued = false;
+    let refreshInProgress = false;
+    let profileSchemaLimited = false;
+    let chatMediaSchemaLimited = false;
+    let realtime;
+    let supabase;
+
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[char]);
+    }
+    function timeLabel(value) {
+      return new Intl.DateTimeFormat("tr-TR", { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
+    }
+    function me() {
+      return state.users.find(user => user.id === currentUser) || (authUser ? {
+        id: authUser.id,
+        username: authUser.user_metadata?.username || `user-${authUser.id.slice(0, 8)}`,
+        bio: "",
+        avatarUrl: null,
+        rank: "Üye",
+        isAdmin: false
+      } : null);
+    }
+    function userProfile(id) { return state.users.find(user => user.id === id) || null; }
+    function userName(id) { return userProfile(id)?.username || (authUser?.id === id ? me()?.username : null) || "silinmiş kullanıcı"; }
+    function avatar(user, size = "") {
+      const className = `avatar${size ? ` ${size}` : ""}`;
+      return user?.avatarUrl
+        ? `<img class="${className}" src="${esc(user.avatarUrl)}" alt="" loading="lazy">`
+        : `<span class="${className} avatar-fallback" aria-hidden="true">${esc((user?.username || "?").slice(0, 1).toUpperCase())}</span>`;
+    }
+    function rankStars(user) {
+      const count = Math.max(0, ranks.indexOf(user?.rank || "Üye"));
+      return count ? `<span class="rank-stars" aria-label="${count} rütbe yıldızı">${"★".repeat(count)}</span>` : "";
+    }
+    function profileCover(user, editor = false) {
+      const media = user?.backgroundUrl
+        ? user.backgroundType?.startsWith("video/")
+          ? `<video src="${esc(user.backgroundUrl)}" autoplay muted loop playsinline></video>`
+          : `<img src="${esc(user.backgroundUrl)}" alt="">`
+        : "";
+      return `<div class="profile-cover">${media}<span class="profile-cover-label">${editor ? "PROFİL KAPAĞI" : `@${esc(user?.username || "üye")}`}</span></div>`;
+    }
+    function notify(message) {
+      const root = document.getElementById("toast-root");
+      root.innerHTML = `<div class="toast" role="status">${esc(message)}</div>`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { root.innerHTML = ""; }, 5000);
+    }
+    function backendError(error) {
+      console.error("666 backend error:", error);
+      const message = error?.message || "Bilinmeyen hata";
+      if (message.includes("Failed to fetch")) {
+        notify("Supabase'e bağlanılamadı. Proje URL'sini, internet bağlantısını ve Auth URL ayarlarını kontrol et.");
+      } else if (message.includes("relation") || message.includes("schema cache")) {
+        notify("Veritabanı tabloları bulunamadı. supabase-schema.sql dosyasını Supabase SQL Editor'de çalıştır.");
+      } else if (message.includes("Bucket not found")) {
+        notify("Profil fotoğrafı deposu bulunamadı. Güncel supabase-schema.sql dosyasını Supabase SQL Editor'de çalıştır.");
+      } else if (message.includes("column") || message.includes("profiles_rank_check")) {
+        notify("Veritabanı güncel değil. Güncel supabase-schema.sql dosyasının tamamını Supabase SQL Editor'de çalıştır.");
+      } else {
+        notify(`İşlem tamamlanamadı: ${message}`);
+      }
+    }
+    function authErrorMessage(error) {
+      const message = String(error?.message || "");
+      if (/signups? not allowed|signup_disabled|signups disabled/i.test(message)) {
+        return "Kayıt Supabase projesinde kapalı. Supabase Dashboard > Authentication > Settings > User Signups bölümünde “Allow new users to sign up” seçeneğini açıp kaydet; sonra tekrar dene.";
+      }
+      if (/email.*rate.?limit|rate.?limit.*email|over_email_send_rate_limit|email.*limited/i.test(message)) {
+        return "Supabase kısa sürede çok fazla hesap isteği aldığını söylüyor. Bir süre bekleyip tekrar dene. Bu kullanıcı adıyla hesap açtıysan kayıt yerine kullanıcı adı ve parolanla giriş yap.";
+      }
+      if (/invalid login credentials/i.test(message)) return "E-posta/kullanıcı adı veya parola yanlış. Bilgilerini kontrol et.";
+      if (/email not confirmed/i.test(message)) return "E-posta adresin henüz doğrulanmamış. Gelen kutundaki Supabase doğrulama bağlantısına tıkla.";
+      if (/user already registered/i.test(message)) return "Bu e-posta ile zaten hesap var. Giriş yap seçeneğini kullan.";
+      if (/password should be at least|password.*characters/i.test(message)) return "Parola en az 8 karakter olmalı.";
+      if (/database error saving new user/i.test(message)) return "Hesap açılırken veritabanı profil kaydı oluşturamadı. Güncel supabase-schema.sql dosyasını Supabase SQL Editor'de çalıştır.";
+      if (/failed to fetch|network/i.test(message)) return "Supabase'e bağlanılamadı. İnternet bağlantısını ve proje URL'sini kontrol et.";
+      return `Giriş/kayıt başarısız: ${message || "Supabase hata ayrıntısı vermedi."}`;
+    }
+    function missingColumn(error) {
+      return error?.code === "42703" ||
+        (/column .* does not exist/i.test(String(error?.message || "")) &&
+          /profiles\.(user_rank|is_admin|bio|avatar_url|background_url|background_type)|messages\.(media_path|media_type)/i.test(String(error?.message || "")));
+    }
+    async function checked(query) {
+      const result = await query;
+      if (result.error) throw result.error;
+      return result.data || [];
+    }
+    async function ensureProfile(user) {
+      if (!user?.id) return;
+      const metadataName = String(user.user_metadata?.username || "").trim();
+      const username = /^[\p{L}\p{N}_-]{3,20}$/u.test(metadataName)
+        ? metadataName
+        : `user-${user.id.slice(0, 8)}`;
+      let { error } = await supabase.from("profiles").upsert(
+        { id: user.id, username },
+        { onConflict: "id", ignoreDuplicates: true }
+      );
+      if (error?.code === "23505" && username !== `user-${user.id.slice(0, 8)}`) {
+        ({ error } = await supabase.from("profiles").upsert(
+          { id: user.id, username: `user-${user.id.slice(0, 8)}` },
+          { onConflict: "id", ignoreDuplicates: true }
+        ));
+      }
+      if (error) throw error;
+    }
+    async function usernameAuthEmail(username) {
+      const normalized = username.trim().toLowerCase();
+      if (!globalThis.crypto?.subtle) {
+        throw new Error("Kullanıcı adıyla güvenli giriş için siteyi HTTPS adresinden aç.");
+      }
+      const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(normalized));
+      const encoded = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+      return `u-${encoded}@accounts.666team.invalid`;
+    }
+    async function loadData() {
+      let profiles;
+      profileSchemaLimited = false;
+      chatMediaSchemaLimited = false;
+      try {
+        profiles = await checked(supabase.from("profiles").select("id,username,bio,avatar_url,background_url,background_type,user_rank,is_admin,created_at").order("username"));
+      } catch (error) {
+        if (!missingColumn(error)) throw error;
+        profileSchemaLimited = true;
+        try {
+          profiles = await checked(supabase.from("profiles").select("id,username,bio,avatar_url,user_rank,is_admin,created_at").order("username"));
+        } catch (legacyError) {
+          if (!missingColumn(legacyError)) throw legacyError;
+          profiles = await checked(supabase.from("profiles").select("id,username,created_at").order("username"));
+        }
+      }
+      let messages;
+      try {
+        messages = await checked(supabase.from("messages").select("id,sender_id,recipient_id,body,media_path,media_type,created_at").order("created_at", { ascending: false }).limit(500));
+      } catch (error) {
+        if (!missingColumn(error)) throw error;
+        chatMediaSchemaLimited = true;
+        messages = await checked(supabase.from("messages").select("id,sender_id,recipient_id,body,created_at").order("created_at", { ascending: false }).limit(500));
+      }
+      const [posts, comments, likes] = currentUser ? await Promise.all([
+        checked(supabase.from("posts").select("id,user_id,title,body,category,created_at").order("created_at", { ascending: false }).limit(500)),
+        checked(supabase.from("comments").select("id,post_id,user_id,body,created_at").order("created_at")),
+        checked(supabase.from("likes").select("post_id,user_id"))
+      ]) : [[], [], []];
+      const messagesInOrder = messages.reverse();
+      const mediaPaths = messagesInOrder.map(message => message.media_path).filter(Boolean);
+      let signedMedia = new Map();
+      if (mediaPaths.length) {
+        const { data, error } = await supabase.storage.from("chat-media").createSignedUrls(mediaPaths, 3600);
+        if (error) throw error;
+        signedMedia = new Map((data || []).filter(item => item.signedUrl).map(item => [item.path, item.signedUrl]));
+      }
+      let follows = [];
+      if (currentUser) follows = await checked(supabase.from("follows").select("follower_id,followed_id"));
+      state = {
+        users: profiles.map(row => ({
+          id: row.id, username: row.username, bio: row.bio || "", avatarUrl: row.avatar_url,
+          backgroundUrl: row.background_url || null, backgroundType: row.background_type || null,
+          rank: row.user_rank || "Üye", isAdmin: row.is_admin === true
+        })),
+        posts: posts.map(row => ({
+          id: row.id, userId: row.user_id, title: row.title, body: row.body, category: row.category,
+          time: row.created_at, likes: likes.filter(like => like.post_id === row.id).map(like => like.user_id),
+          comments: comments.filter(comment => comment.post_id === row.id).map(comment => ({
+            id: comment.id, userId: comment.user_id, body: comment.body, time: comment.created_at
+          }))
+        })),
+        messages: messagesInOrder.map(row => ({
+          id: row.id, from: row.sender_id, to: row.recipient_id,
+          kind: row.recipient_id ? "dm" : "global", body: row.body, time: row.created_at,
+          mediaUrl: row.media_path ? signedMedia.get(row.media_path) || null : null,
+          mediaType: row.media_type || null
+        })),
+        follows: follows.map(row => ({ from: row.follower_id, to: row.followed_id }))
+      };
+      render();
+      if (profileSchemaLimited) {
+        const notice = document.getElementById("connection-notice");
+        notice.classList.add("warning");
+        notice.innerHTML = "<strong>Veritabanı eski:</strong> Giriş/sohbet çalışabilir; profil kapağı, rütbe ve sohbet medyası için güncel supabase-schema.sql dosyasını Supabase SQL Editor'de çalıştır.";
+      } else if (chatMediaSchemaLimited) {
+        const notice = document.getElementById("connection-notice");
+        notice.classList.add("warning");
+        notice.innerHTML = "<strong>Sohbet medyası kurulmamış:</strong> GIF/video göndermek için güncel supabase-schema.sql dosyasını Supabase SQL Editor'de çalıştır.";
+      }
+    }
+    function authPanel() {
+      if (!authOpen || me()) return "";
+      const register = authMode === "register";
+      const guest = authMode === "guest";
+      return `<div class="modal-backdrop" data-action="close-auth">
+        <section class="modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+          <div class="modal-head"><strong id="auth-title">${guest ? "E-POSTASIZ KULLANICI HESABI" : register ? "666'YA KATIL" : "TEKRAR HOŞ GELDİN"}</strong><button class="small-btn" type="button" data-action="close-auth">Kapat ✕</button></div>
+          <div class="modal-body">
+            <h2>${guest ? "Kullanıcı adıyla hesap oluştur" : register ? "Yeni hesap oluştur" : "Hesabına giriş yap"}</h2>
+            <p>${guest ? "Gerçek e-posta gerekmez. Kullanıcı adın ve parolanla bu ekrandan tekrar giriş yapabilirsin. Parolanı unutursan e-posta ile sıfırlama yapılamaz." : register ? "Bir kullanıcı adı seç ve topluluğa katıl." : "Giriş yapınca genel sohbet ve özel mesajlar açılır."}</p>
+            <form class="auth-form" id="auth-form" data-mode="${authMode}">
+              ${guest || register ? `<label class="field-label">KULLANICI ADI<input class="field" name="username" autocomplete="username" minlength="3" maxlength="20" placeholder="3–20 karakter" required></label>` : ""}
+              ${guest ? `<label class="field-label">PAROLA<input class="field" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="En az 8 karakter" required></label>` : `<label class="field-label">${register ? "E-POSTA" : "E-POSTA VEYA KULLANICI ADI"}<input class="field" name="email" type="${register ? "email" : "text"}" autocomplete="${register ? "email" : "username"}" maxlength="254" placeholder="${register ? "ornek@eposta.com" : "E-posta veya kullanıcı adı"}" required></label>
+              <label class="field-label">PAROLA<input class="field" name="password" type="password" autocomplete="${register ? "new-password" : "current-password"}" minlength="8" maxlength="128" placeholder="En az 8 karakter" required></label>`}
+              <button class="button full" type="submit">${guest || register ? "HESAP OLUŞTUR" : "GİRİŞ YAP"}</button>
+            </form>
+            ${guest
+              ? `<button class="auth-toggle" type="button" data-action="open-login">Hesabım var, kullanıcı adıyla giriş yap</button>`
+              : `<button class="auth-toggle" type="button" data-action="${register ? "open-login" : "open-register"}">${register ? "Zaten hesabın var mı? Giriş yap" : "Yeni misin? E-posta ile kaydol"}</button>
+              <button class="auth-toggle" type="button" data-action="open-guest">E-posta olmadan kullanıcı adı + parola ile kaydol</button>`}
+            ${guest ? `<p class="auth-note">Bu hesap Supabase’de saklanır ve başka cihazlarda kullanıcı adı/parolayla açılabilir. Gerçek e-posta bağlanmadığı için parolanı güvenli yerde sakla.</p>` : `<p class="auth-note">Oturum bu cihazdaki tarayıcıda korunur; parola site dosyasına açık şekilde yazılmaz. E-posta doğrulaması istenirse gelen bağlantıyı aç.</p>`}
+          </div>
+        </section>
+      </div>`;
+    }
+    function profilePanel() {
+      if (!me()) return "";
+      const followers = state.follows.filter(follow => follow.to === currentUser).length;
+      const following = state.follows.filter(follow => follow.from === currentUser).length;
+      return `<section class="panel form-panel" id="profile-panel">
+        ${profileCover(me(), true)}
+        <div class="user-card"><button class="profile-heading profile-link" type="button" data-action="view-profile" data-id="${esc(currentUser)}">${avatar(me())}<span><span class="micro">PROFİLİN · OTURUM AÇIK</span><br><strong>@${esc(me().username)}</strong> ${rankStars(me())}<br><span class="profile-rank">${esc(me().isAdmin ? "Yönetici" : me().rank || "Üye")}</span><span class="micro">${followers} takipçi · ${following} takip</span></span></button><button class="small-btn" type="button" data-action="logout">Çıkış yap</button></div>
+        <form class="profile-form" id="profile-form">
+          <label class="field-label">BİYOGRAFİ<textarea class="post-body" name="bio" maxlength="280" placeholder="Kendinden kısaca bahset...">${esc(me().bio)}</textarea></label>
+          <label class="field-label">PROFİL FOTOĞRAFI<input class="field" name="avatar" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+          <div class="profile-cover-editor"><label class="field-label">PROFİL ARKA PLANI (FOTOĞRAF / HAREKETLİ VİDEO)<input class="field" name="background" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"></label><span class="micro">Fotoğraf/GIF en fazla 5 MB · MP4/WebM en fazla 20 MB</span></div>
+          <div class="micro">JPG, PNG, WebP veya GIF · en fazla 5 MB</div>
+          <button class="button full" type="submit">PROFİLİ KAYDET</button>
+        </form>
+      </section>`;
+    }
+    function publicProfilePanel() {
+      const user = userProfile(viewingProfileId);
+      if (!user) return "";
+      const posts = currentUser ? state.posts.filter(post => post.userId === user.id) : [];
+      const followers = state.follows.filter(follow => follow.to === user.id).length;
+      const following = state.follows.filter(follow => follow.from === user.id).length;
+      const isFollowing = state.follows.some(follow => follow.from === currentUser && follow.to === user.id);
+      return `<div class="modal-backdrop" data-action="close-profile">
+        <section class="modal" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+          <div class="modal-head"><strong id="profile-title">TOPLULUK PROFİLİ</strong><button class="small-btn" type="button" data-action="close-profile">Kapat ✕</button></div>
+          <div class="modal-body">
+            ${profileCover(user)}
+            <div class="profile-public-head">${avatar(user)}<div><strong>@${esc(user.username)}</strong> ${rankStars(user)}<br><span class="profile-rank">${esc(user.isAdmin ? "Yönetici" : user.rank || "Üye")}</span></div></div>
+            <div class="micro">${followers} takipçi · ${following} takip · ${posts.length} paylaşım</div>
+            <div class="profile-public-bio">${esc(user.bio || "Bu üye henüz biyografi eklememiş.")}</div>
+            ${me() && user.id !== currentUser ? `<div class="post-actions"><button class="small-btn" type="button" data-action="follow" data-id="${esc(user.id)}">${isFollowing ? "Takiptesin · Takibi bırak" : "Takip et"}</button><button class="small-btn" type="button" data-action="message" data-id="${esc(user.id)}">Özel mesaj</button></div>` : ""}
+            <h3>Paylaşımları</h3><div class="profile-posts">${!currentUser ? `<div class="empty">Paylaşımları görmek için giriş yap.</div>` : posts.length ? posts.map(postCard).join("") : `<div class="empty">Henüz paylaşım yok.</div>`}</div>
+          </div>
+        </section>
+      </div>`;
+    }
+    function composePanel() {
+      return `<section class="panel form-panel">
+        <h2>Yeni paylaşım</h2><p>Kodunu, güvenlik bildirimi veya topluluk notunu paylaş.</p>
+        ${me() ? `<form id="post-form" class="form">
+          <label class="field-label">BAŞLIK<input class="field" name="title" maxlength="100" placeholder="Paylaşım başlığı" required></label>
+          <label class="field-label">KATEGORİ<select class="select" name="category"><option value="code">Kod paylaşımı</option><option value="report">Güvenlik bildirimi</option><option value="general">Genel</option></select></label>
+          <label class="field-label">İÇERİK<textarea class="post-body" name="body" maxlength="8000" placeholder="İçeriğini yaz..." required></textarea></label>
+          <button class="button full" type="submit">PAYLAŞIMI YAYINLA ↗</button>
+        </form>` : `<p>Paylaşım yapmak için önce giriş yap.</p>`}
+      </section>`;
+    }
+    function postCard(post) {
+      const liked = post.likes.includes(currentUser);
+      const label = categories.find(category => category.key === post.category)?.label || "Genel";
+      const author = state.users.find(user => user.id === post.userId);
+      const comments = post.comments.map(comment => `<div class="comment"><strong>@${esc(userName(comment.userId))}</strong>${esc(comment.body)} <span class="micro">${esc(timeLabel(comment.time))}</span></div>`).join("");
+      return `<article class="post">
+        <div class="post-meta"><button class="post-user profile-link" type="button" data-action="view-profile" data-id="${esc(post.userId)}">${avatar(author, "small")} @${esc(userName(post.userId))} ${rankStars(author)}</button><span>${esc(timeLabel(post.time))}</span><span class="tag ${post.category === "report" ? "report" : ""}">${esc(label)}</span></div>
+        <h2>${esc(post.title)}</h2><div class="post-content ${post.category === "code" ? "code" : ""}">${esc(post.body)}</div>
+        <div class="post-actions">
+          <button class="small-btn ${liked ? "liked" : ""}" type="button" data-action="like" data-id="${esc(post.id)}" ${!me() ? "disabled" : ""}>${liked ? "♥" : "♡"} Beğen · ${post.likes.length}</button>
+          <button class="small-btn" type="button" data-action="focus-comment" data-id="${esc(post.id)}">Yorum · ${post.comments.length}</button>
+          ${post.userId === currentUser ? `<button class="small-btn danger" type="button" data-action="delete-post" data-id="${esc(post.id)}">Paylaşımı sil</button>` : ""}
+        </div>
+        <div class="comments">${comments}${me() ? `<form class="comment-form" data-post="${esc(post.id)}"><input name="comment" maxlength="500" placeholder="Yorum yaz..." required><button class="small-btn" type="submit">Gönder</button></form>` : `<div class="micro">Yorum yapmak için giriş yap.</div>`}</div>
+      </article>`;
+    }
+    function feedPanel() {
+      const filtered = state.posts.filter(post => activeCategory === "all" || post.category === activeCategory);
+      const tabs = categories.map(category => `<button class="category ${activeCategory === category.key ? "active" : ""}" type="button" data-category="${category.key}">${esc(category.label)}</button>`).join("");
+      const content = !me()
+        ? `<div class="empty">Paylaşımları görmek için giriş yap.</div>`
+        : activeCategory === null
+          ? `<div class="empty">Paylaşımları görmek için önce bir başlık seç.</div>`
+          : filtered.length
+            ? filtered.map(postCard).join("")
+            : `<div class="empty">Bu başlıkta henüz paylaşım yok. İlk paylaşımı sen yap.</div>`;
+      return `<section class="panel">
+        <div class="feed-head"><div class="feed-kicker">666 // TOPLULUK AKIŞI</div><h1>Paylaş. Öğren. Birlikte güçlen.</h1><p>Paylaşımlar Supabase veritabanında kalır; yalnızca paylaşan kişi silebilir.</p></div>
+        <div class="categories">${tabs}</div><div class="post-list">${content}</div>
+      </section>`;
+    }
+    function chatPanel() {
+      const conversation = chatMode === "global"
+        ? state.messages.filter(message => message.kind === "global")
+        : activeDm ? state.messages.filter(message => message.kind === "dm" &&
+          ((message.from === currentUser && message.to === activeDm) || (message.from === activeDm && message.to === currentUser))) : [];
+      const heading = chatMode === "global" ? "# topluluk-sohbeti" : activeDm ? `@${userName(activeDm)} ile özel sohbet` : "Bir kişi seç";
+      const messages = conversation.slice(-100).map(message => {
+        const sender = state.users.find(user => user.id === message.from);
+        const media = message.mediaUrl
+          ? message.mediaType === "video/mp4" || message.mediaType === "video/webm"
+            ? `<video class="message-media" src="${esc(message.mediaUrl)}" controls preload="metadata"></video>`
+            : `<img class="message-media" src="${esc(message.mediaUrl)}" alt="Sohbet eki" loading="lazy">`
+          : "";
+        const body = message.body && !["[GIF]", "[Video]"].includes(message.body) ? `<div class="message-body">${esc(message.body)}</div>` : "";
+        return `<div class="message"><div class="message-meta"><strong>${avatar(sender, "small")} @${esc(userName(message.from))} ${rankStars(sender)}</strong><span>${esc(timeLabel(message.time))}</span></div>${body}${media}</div>`;
+      }).join("");
+      return `<section class="panel chat-panel">
+        <div class="panel-head"><span class="panel-title">Sohbet odası</span><span class="micro">${chatMode === "global" ? "GENEL" : "DM"}</span>${chatScreenOpen ? `<button class="small-btn" type="button" data-action="close-chat">Kapat ✕</button>` : ""}</div>
+        <div class="chat-switch"><button type="button" class="switch ${chatMode === "global" ? "active" : ""}" data-action="global-chat">HERKESLE SOHBET</button><button type="button" class="switch ${chatMode === "dm" ? "active" : ""}" data-action="dm-chat">ÖZEL MESAJ</button></div>
+        <div class="chat-title">${esc(heading)}</div>
+        <div class="chat-messages" id="chat-messages">${messages || `<div class="chat-empty">${chatMode === "dm" && !activeDm ? "Sağdaki kullanıcı listesinden birini seç." : "Henüz mesaj yok. İlk mesajı sen yaz."}</div>`}</div>
+        ${me() && (chatMode === "global" || activeDm) ? `<form class="chat-form" id="chat-form"><textarea name="message" maxlength="1000" placeholder="${chatMode === "global" ? "Topluluğa mesaj yaz..." : "Özel mesaj yaz..."}"></textarea><div class="chat-attachments"><label class="field-label">GIF / VİDEO<input name="media" type="file" accept="image/gif,video/mp4,video/webm"></label></div><div class="micro">GIF en fazla 10 MB · MP4/WebM en fazla 20 MB</div><button class="button chat-submit" type="submit">GÖNDER ↗</button></form>` : `<div class="chat-hint">${me() ? "Özel sohbet için bir kullanıcı seç." : "Sohbete katılmak için giriş yap."}</div>`}
+      </section>`;
+    }
+    function peoplePanel() {
+      const users = state.users.filter(user => user.id !== currentUser);
+      return `<section class="panel users-panel"><div class="panel-head"><span class="panel-title">Topluluk üyeleri</span><span class="micro">${users.length} ÜYE</span></div>
+        <div class="user-list">${users.length ? users.map(user => {
+          const following = state.follows.some(follow => follow.from === currentUser && follow.to === user.id);
+          const followers = state.follows.filter(follow => follow.to === user.id).length;
+          const rankForm = me()?.isAdmin ? `<form class="rank-form"><input type="hidden" name="user_id" value="${esc(user.id)}"><select class="select" name="rank" aria-label="@${esc(user.username)} rütbesi">${ranks.map(rank => `<option value="${esc(rank)}" ${rank === user.rank ? "selected" : ""}>${esc(rank)}</option>`).join("")}</select><button class="small-btn" type="submit">Rütbe ver</button></form>` : "";
+          return `<div class="user-row">${avatar(user, "small")}<button class="user-name profile-link" type="button" data-action="view-profile" data-id="${esc(user.id)}">@${esc(user.username)} ${rankStars(user)}<span class="profile-rank">${esc(user.isAdmin ? "Yönetici" : user.rank || "Üye")}</span>${user.bio ? `<span class="micro">${esc(user.bio)}</span>` : ""}</button><span class="user-actions">${me() ? `<span class="micro">${followers} takipçi</span><button class="small-btn" type="button" data-action="follow" data-id="${esc(user.id)}">${following ? "Takiptesin" : "Takip et"}</button><button class="small-btn" type="button" data-action="message" data-id="${esc(user.id)}">DM</button>` : ""}</span></div>${rankForm}`;
+        }).join("") : `<div class="chat-hint">${me() ? "Henüz başka kullanıcı yok." : "Üyeleri görmek için giriş yap."}</div>`}</div>
+      </section>`;
+    }
+    function render() {
+      const navAuth = document.getElementById("nav-auth");
+      document.body.classList.toggle("chat-open", chatScreenOpen);
+      navAuth.textContent = me() ? "PROFİLİ DÜZENLE" : "GİRİŞ YAP / KAYDOL";
+      navAuth.dataset.action = me() ? "nav-profile" : "nav-auth";
+      app.innerHTML = `${chatScreenOpen
+        ? `<div class="chat-screen"><div class="chat-screen-inner">${chatPanel()}</div></div>`
+        : `<div class="chat-top-column">${chatPanel()}</div><div class="column feed-column">${feedPanel()}</div><div class="column right-column">${profilePanel()}${composePanel()}${peoplePanel()}</div>`}${authPanel()}${publicProfilePanel()}`;
+      const chat = document.getElementById("chat-messages");
+      if (chat) chat.scrollTop = chat.scrollHeight;
+    }
+    function formHasEdits(form) {
+      return Array.from(form.elements).some(control => {
+        if (control instanceof HTMLInputElement) {
+          if (control.type === "file") return control.files.length > 0;
+          if (control.type === "checkbox" || control.type === "radio") {
+            return control.checked !== control.defaultChecked;
+          }
+          return control.value !== control.defaultValue;
+        }
+        if (control instanceof HTMLTextAreaElement) return control.value !== control.defaultValue;
+        if (control instanceof HTMLSelectElement) {
+          return Array.from(control.options).some(option => option.selected !== option.defaultSelected);
+        }
+        return false;
+      });
+    }
+    async function refresh({ deferWhileEditing = false } = {}) {
+      const focused = document.activeElement;
+      const editing = app.contains(focused) && focused.matches("input, textarea, select");
+      const hasDraft = Array.from(app.querySelectorAll("form")).some(formHasEdits);
+      if (deferWhileEditing && (editing || hasDraft)) {
+        refreshQueued = true;
+        return true;
+      }
+      if (refreshInProgress) {
+        refreshQueued = true;
+        return true;
+      }
+      refreshInProgress = true;
+      try {
+        await loadData();
+        return true;
+      } catch (error) {
+        backendError(error);
+        render();
+        return false;
+      } finally {
+        refreshInProgress = false;
+        if (refreshQueued) {
+          refreshQueued = false;
+          setTimeout(() => refresh({ deferWhileEditing: true }), 0);
+        }
+      }
+    }
+    async function handleAuth(form) {
+      const values = new FormData(form);
+      if (form.dataset.mode === "guest") {
+        const username = String(values.get("username") || "").trim();
+        if (!/^[\p{L}\p{N}_-]{3,20}$/u.test(username)) {
+          notify("Kullanıcı adı 3–20 karakter olmalı; harf, rakam, _ ve - kullan.");
+          return;
+        }
+        const password = String(values.get("password") || "");
+        if (password.length < 8) { notify("Parola en az 8 karakter olmalı."); return; }
+        const email = await usernameAuthEmail(username);
+        const { data, error } = await supabase.auth.signUp({
+          email, password, options: { data: { username } }
+        });
+        if (error) throw error;
+        if (!data.user || !data.session) {
+          authMode = "login";
+          render();
+          notify("Hesap oluşturuldu. Supabase Email ayarında Confirm email kapalı olmalı; ardından kullanıcı adı ve parolanla giriş yap.");
+          return;
+        }
+        authUser = data.user;
+        currentUser = data.user.id;
+        authOpen = false;
+        render();
+        await ensureProfile(data.user);
+        if (await refresh()) notify("Hesap oluşturuldu ve giriş yapıldı.");
+        return;
+      }
+      const identifier = String(values.get("email") || "").trim();
+      const password = String(values.get("password") || "");
+      if (password.length < 8) { notify("Parola en az 8 karakter olmalı."); return; }
+      if (form.dataset.mode === "register") {
+        const email = identifier.toLowerCase();
+        const username = String(values.get("username") || "").trim();
+        if (!/^[\p{L}\p{N}_-]{3,20}$/u.test(username)) {
+          notify("Kullanıcı adı 3–20 karakter olmalı; harf, rakam, _ ve - kullan.");
+          return;
+        }
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username } } });
+        if (error) throw error;
+        if (!data.session) {
+          authMode = "login";
+          render();
+          notify("Hesap açıldı ama Supabase e-posta doğrulaması istiyor. Kapatmak için Supabase > Authentication > Sign In / Providers > Email > Confirm email ayarını kapat; sonra yeniden kaydol.");
+        } else {
+          authUser = data.user;
+          currentUser = data.user.id;
+          authOpen = false;
+          render();
+          await ensureProfile(data.user);
+          await refresh();
+          notify("Hesabın oluşturuldu.");
+        }
+      } else {
+        const loginEmail = identifier.includes("@")
+          ? identifier.toLowerCase()
+          : await usernameAuthEmail(identifier);
+        const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
+        if (error) throw error;
+        authUser = data.user;
+        currentUser = data.user.id;
+        authOpen = false;
+        render();
+        try {
+          await ensureProfile(data.user);
+        } catch (error) {
+          console.error("666 profile setup error:", error);
+          notify(`Giriş başarılı, profil hazırlanamadı: ${error.message}. Güncel supabase-schema.sql dosyasını çalıştır.`);
+          await refresh();
+          return;
+        }
+        if (await refresh()) notify("Giriş yapıldı. Sohbet alanı açıldı.");
+      }
+    }
+    app.addEventListener("click", async event => {
+      if (event.target.matches(".modal-backdrop[data-action='close-auth']")) {
+        authOpen = false; render(); return;
+      }
+      if (event.target.matches(".modal-backdrop[data-action='close-profile']")) {
+        viewingProfileId = null; render(); return;
+      }
+      const button = event.target.closest("button");
+      if (!button) return;
+      try {
+        if (button.dataset.category) { activeCategory = button.dataset.category; render(); return; }
+        const { action, id: targetId } = button.dataset;
+        if (action === "open-login") { authMode = "login"; authOpen = true; render(); }
+        if (action === "open-register") { authMode = "register"; authOpen = true; render(); }
+        if (action === "open-guest") { authMode = "guest"; authOpen = true; render(); }
+        if (action === "close-auth") { authOpen = false; render(); }
+        if (action === "close-profile") { viewingProfileId = null; render(); }
+        if (action === "close-chat") { chatScreenOpen = false; render(); }
+        if (action === "view-profile") { viewingProfileId = targetId; render(); }
+        if (action === "logout") {
+          const { error } = await supabase.auth.signOut();
+          if (error) throw error;
+          currentUser = null; authUser = null; activeDm = null; chatMode = "global";
+          viewingProfileId = null; await refresh();
+        }
+        if (action === "global-chat") { chatMode = "global"; render(); }
+        if (action === "dm-chat") { chatMode = "dm"; render(); }
+        if (action === "message") { viewingProfileId = null; activeDm = targetId; chatMode = "dm"; chatScreenOpen = true; render(); }
+        if (action === "follow" && me()) {
+          const existing = state.follows.some(follow => follow.from === currentUser && follow.to === targetId);
+          const result = existing
+            ? await supabase.from("follows").delete().eq("follower_id", currentUser).eq("followed_id", targetId)
+            : await supabase.from("follows").insert({ follower_id: currentUser, followed_id: targetId });
+          if (result.error) throw result.error;
+          await refresh();
+        }
+        if (action === "like" && me()) {
+          const post = state.posts.find(item => item.id === targetId);
+          if (!post) return;
+          const result = post.likes.includes(currentUser)
+            ? await supabase.from("likes").delete().eq("post_id", targetId).eq("user_id", currentUser)
+            : await supabase.from("likes").insert({ post_id: targetId, user_id: currentUser });
+          if (result.error) throw result.error;
+          await refresh();
+        }
+        if (action === "delete-post" && me()) {
+          const post = state.posts.find(item => item.id === targetId);
+          if (!post || post.userId !== currentUser) return;
+          if (confirm("Bu paylaşımı ve yorumlarını kalıcı olarak silmek istiyor musun?")) {
+            const { error } = await supabase.from("posts").delete().eq("id", targetId);
+            if (error) throw error;
+            await refresh();
+          }
+        }
+        if (action === "focus-comment") app.querySelector(`form[data-post="${CSS.escape(targetId)}"] input`)?.focus();
+      } catch (error) { backendError(error); }
+    });
+    app.addEventListener("input", event => {
+      const form = event.target.closest("form");
+      if (form && formHasEdits(form)) form.dataset.dirty = "true";
+      else if (form) delete form.dataset.dirty;
+    });
+    app.addEventListener("change", event => {
+      const form = event.target.closest("form");
+      if (form && formHasEdits(form)) form.dataset.dirty = "true";
+      else if (form) delete form.dataset.dirty;
+    });
+    app.addEventListener("click", event => {
+      const button = event.target.closest("#chat-form button[type='submit']");
+      if (button) button.form.dataset.submitArmed = "true";
+    });
+    app.addEventListener("submit", async event => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      event.preventDefault();
+      if (form.id === "chat-form" && form.dataset.submitArmed !== "true") return;
+      delete form.dataset.submitArmed;
+      if (submittingForms.has(form)) return;
+      submittingForms.add(form);
+      const submitButton = form.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton?.textContent || "";
+      if (submitButton) {
+        submitButton.disabled = true;
+        if (form.id === "chat-form") submitButton.textContent = "GÖNDERİLİYOR...";
+      }
+      try {
+        if (form.id === "auth-form") { await handleAuth(form); return; }
+        if (!me()) { notify("Devam etmek için önce giriş yap."); return; }
+        const values = new FormData(form);
+        if (form.classList.contains("rank-form")) {
+          if (!me().isAdmin) { notify("Yalnızca yöneticiler rütbe verebilir."); return; }
+          const userId = String(values.get("user_id") || "");
+          const rank = String(values.get("rank") || "");
+          if (!ranks.includes(rank) || !userProfile(userId)) { notify("Geçerli bir üye ve rütbe seç."); return; }
+          const { error } = await supabase.from("profiles").update({ user_rank: rank }).eq("id", userId);
+          if (error) throw error;
+          notify("Üye rütbesi güncellendi.");
+        } else if (form.id === "profile-form") {
+          const bio = String(values.get("bio") || "").trim();
+          const file = values.get("avatar");
+          const backgroundFile = values.get("background");
+          let avatarUrl = me().avatarUrl || null;
+          let backgroundUrl = me().backgroundUrl || null;
+          let backgroundType = me().backgroundType || null;
+          if (file instanceof File && file.size > 0) {
+            const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+            if (!allowedTypes.includes(file.type)) { notify("Fotoğraf JPG, PNG, WebP veya GIF biçiminde olmalı."); return; }
+            if (file.size > 5 * 1024 * 1024) { notify("Profil fotoğrafı en fazla 5 MB olabilir."); return; }
+            const path = `${currentUser}/avatar`;
+            const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, {
+              cacheControl: "0", contentType: file.type, upsert: true
+            });
+            if (uploadError) throw uploadError;
+            avatarUrl = `${supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl}?v=${Date.now()}`;
+          }
+          if (backgroundFile instanceof File && backgroundFile.size > 0) {
+            const isImage = ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(backgroundFile.type);
+            const isVideo = ["video/mp4", "video/webm"].includes(backgroundFile.type);
+            if (!isImage && !isVideo) { notify("Arka plan JPG, PNG, WebP, GIF, MP4 veya WebM olmalı."); return; }
+            const maxSize = isVideo ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
+            if (backgroundFile.size > maxSize) { notify(isVideo ? "Arka plan videosu en fazla 20 MB olabilir." : "Arka plan görseli en fazla 5 MB olabilir."); return; }
+            const extension = backgroundFile.type.split("/")[1].replace("jpeg", "jpg");
+            const path = `${currentUser}/background-${crypto.randomUUID()}.${extension}`;
+            const { error: uploadError } = await supabase.storage.from("profile-backgrounds").upload(path, backgroundFile, {
+              cacheControl: "3600", contentType: backgroundFile.type, upsert: false
+            });
+            if (uploadError) throw uploadError;
+            backgroundUrl = supabase.storage.from("profile-backgrounds").getPublicUrl(path).data.publicUrl;
+            backgroundType = backgroundFile.type;
+          }
+          const { error } = await supabase.from("profiles").update({
+            bio, avatar_url: avatarUrl, background_url: backgroundUrl, background_type: backgroundType
+          }).eq("id", currentUser);
+          if (error) throw error;
+          notify("Profilin kaydedildi.");
+        } else if (form.id === "post-form") {
+          const title = String(values.get("title") || "").trim();
+          const body = String(values.get("body") || "").trim();
+          const category = String(values.get("category") || "");
+          if (!title || !body || !categories.some(item => item.key === category && item.key !== "all")) {
+            notify("Başlık, içerik ve geçerli bir kategori gir."); return;
+          }
+          const { error } = await supabase.from("posts").insert({ user_id: currentUser, title, body, category });
+          if (error) throw error;
+          activeCategory = category;
+        } else if (form.id === "chat-form") {
+          const text = String(values.get("message") || "").trim();
+          const mediaFile = values.get("media");
+          const hasMedia = mediaFile instanceof File && mediaFile.size > 0;
+          if (!text && !hasMedia) { notify("Mesaja yazı ekle veya GIF/video seç."); return; }
+          if (text.length > 1000) { notify("Mesaj en fazla 1000 karakter olabilir."); return; }
+          let body = text;
+          let mediaPath = null;
+          let mediaType = null;
+          if (hasMedia) {
+            const isGif = mediaFile.type === "image/gif";
+            const isVideo = ["video/mp4", "video/webm"].includes(mediaFile.type);
+            if (!isGif && !isVideo) { notify("Yalnızca GIF, MP4 veya WebM gönderebilirsin."); return; }
+            const maxSize = isGif ? 10 * 1024 * 1024 : 20 * 1024 * 1024;
+            if (mediaFile.size > maxSize) { notify(isGif ? "GIF en fazla 10 MB olabilir." : "Video en fazla 20 MB olabilir."); return; }
+            const extension = isGif ? "gif" : mediaFile.type === "video/mp4" ? "mp4" : "webm";
+            mediaPath = `${currentUser}/${crypto.randomUUID()}.${extension}`;
+            mediaType = mediaFile.type;
+            const { error: uploadError } = await supabase.storage.from("chat-media").upload(mediaPath, mediaFile, {
+              cacheControl: "3600", contentType: mediaType, upsert: false
+            });
+            if (uploadError) throw uploadError;
+            if (!body) body = isGif ? "[GIF]" : "[Video]";
+          }
+          const recipient = chatMode === "dm" ? activeDm : null;
+          const { error } = await supabase.from("messages").insert({
+            sender_id: currentUser, recipient_id: recipient, body, media_path: mediaPath, media_type: mediaType
+          });
+          if (error) {
+            if (mediaPath) {
+              const { error: cleanupError } = await supabase.storage.from("chat-media").remove([mediaPath]);
+              if (cleanupError) console.error("666 media cleanup error:", cleanupError);
+            }
+            throw error;
+          }
+          form.reset();
+        } else if (form.classList.contains("comment-form")) {
+          const body = String(values.get("comment") || "").trim();
+          if (!body) return;
+          const { error } = await supabase.from("comments").insert({ post_id: form.dataset.post, user_id: currentUser, body });
+          if (error) throw error;
+        } else return;
+        delete form.dataset.dirty;
+        await refresh();
+      } catch (error) {
+        if (form.id === "auth-form") notify(authErrorMessage(error));
+        else backendError(error);
+      } finally {
+        submittingForms.delete(form);
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalButtonText;
+        }
+      }
+    });
+
+    document.getElementById("nav-chat").addEventListener("click", () => {
+      chatScreenOpen = true;
+      render();
+    });
+    document.getElementById("nav-auth").addEventListener("click", () => {
+      if (me()) {
+        document.getElementById("profile-panel")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        authMode = "login";
+        authOpen = true;
+        render();
+      }
+    });
+    window.addEventListener("keydown", event => {
+      if (event.key === "Escape" && chatScreenOpen) {
+        chatScreenOpen = false;
+        render();
+      }
+    });
+    app.addEventListener("focusout", () => {
+      if (refreshQueued && !app.querySelector('form[data-dirty="true"]')) {
+        setTimeout(() => refresh({ deferWhileEditing: true }), 0);
+      }
+    });
+    window.addEventListener("focus", () => {
+      if (document.visibilityState === "visible") refresh({ deferWhileEditing: true });
+    });
+
+    if (typeof config.url !== "string" || typeof config.anonKey !== "string" ||
+        !config.url.startsWith("https://") || !config.anonKey.startsWith("sb_publishable_")) {
+      document.getElementById("connection-notice").classList.add("warning");
+      app.innerHTML = `<section class="panel form-panel"><h2>Supabase bağlantısı henüz ayarlanmadı</h2><p>1. Ücretsiz Supabase projesi oluştur. 2. <code>supabase-schema.sql</code> içeriğini SQL Editor'de çalıştır. 3. <code>supabase-config.js</code> dosyasına Project URL ve publishable key bilgilerini girip sitenin tüm dosyalarını yeniden yükle.</p><p><strong>Service role key'i asla bu sayfaya koyma veya paylaşma.</strong></p></section>`;
+    } else {
+      try {
+        supabase = createClient(config.url, config.anonKey, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        });
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        authUser = data.session?.user || null;
+        currentUser = authUser?.id || null;
+        if (authUser) await ensureProfile(authUser);
+        if (await refresh()) {
+          const notice = document.getElementById("connection-notice");
+          notice.classList.remove("warning");
+          notice.innerHTML = "<strong>Topluluk sunucusu bağlı:</strong> Oturumun bu tarayıcıda korunur; profiller, paylaşımlar ve sohbetler Supabase'de saklanır.";
+        } else {
+          const notice = document.getElementById("connection-notice");
+          notice.classList.add("warning");
+          notice.innerHTML = "<strong>Veritabanı güncellemesi gerekiyor:</strong> Güncel supabase-schema.sql dosyasının tamamını Supabase SQL Editor'de yeniden çalıştır, sonra sayfayı yenile.";
+        }
+        supabase.auth.onAuthStateChange((_event, session) => {
+          setTimeout(async () => {
+            authUser = session?.user || null;
+            currentUser = session?.user?.id || null;
+            activeDm = null;
+            if (!currentUser) viewingProfileId = null;
+            authOpen = false;
+            render();
+            if (authUser) {
+              try { await ensureProfile(authUser); }
+              catch (profileError) { backendError(profileError); }
+            }
+            await refresh();
+          }, 0);
+        });
+        realtime = supabase.channel("golge-community")
+          .on("postgres_changes", { event: "*", schema: "public" }, () => {
+            clearTimeout(refreshTimer);
+            refreshTimer = setTimeout(() => { refresh({ deferWhileEditing: true }); }, 400);
+          })
+          .subscribe();
+        setInterval(() => {
+          if (document.visibilityState === "visible") refresh({ deferWhileEditing: true });
+        }, 15000);
+      } catch (error) {
+        app.innerHTML = `<section class="panel form-panel"><h2>Supabase bağlantısı başarısız</h2><p>${esc(error.message)}</p></section>`;
+        backendError(error);
+      }
+    }
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+          .catch(error => console.error("666 app install setup failed:", error));
+      });
+    }
+  </script>
+</body>
+</html>

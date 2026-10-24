@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "666 // Topluluk",
+  "short_name": "666",
+  "description": "666 topluluk sohbeti ve paylaşım alanı.",
+  "lang": "tr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090507",
+  "theme_color": "#100608",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
